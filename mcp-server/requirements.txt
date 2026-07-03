@@ -1,0 +1,4 @@
+# MCP Weather Server — wraps OpenWeatherMap as MCP tools
+mcp>=1.9.0
+httpx>=0.28.0
+python-dotenv>=1.0.0

@@ -1,0 +1,4 @@
+# Streamlit chat UI — talks to the agent backend
+streamlit>=1.40.0
+httpx>=0.28.0
+python-dotenv>=1.0.0

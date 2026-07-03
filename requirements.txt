@@ -1,0 +1,4 @@
+# Root convenience file — install all services in one venv (optional)
+-r mcp-server/requirements.txt
+-r agent-backend/requirements.txt
+-r frontend/requirements.txt
