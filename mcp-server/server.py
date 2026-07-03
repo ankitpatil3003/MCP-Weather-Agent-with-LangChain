@@ -3,7 +3,7 @@ import os
 from dotenv import load_dotenv
 from mcp.server.fastmcp import FastMCP
 
-import weather_client
+import tools
 
 load_dotenv()
 
@@ -13,19 +13,19 @@ mcp = FastMCP("weather")
 @mcp.tool()
 async def geocode_city(city: str) -> dict:
     """Resolve a city name to latitude and longitude coordinates."""
-    return await weather_client.geocode(city)
+    return await tools.geocode_city(city)
 
 
 @mcp.tool()
 async def get_current_weather(city: str) -> dict:
     """Get current weather conditions for a city."""
-    return await weather_client.current(city)
+    return await tools.get_current_weather(city)
 
 
 @mcp.tool()
 async def get_forecast(city: str, days: int = 3) -> dict:
     """Get a daily weather forecast for a city (1-5 days)."""
-    return await weather_client.forecast(city, days=days)
+    return await tools.get_forecast(city, days=days)
 
 
 if __name__ == "__main__":
