@@ -35,6 +35,7 @@ OpenWeatherMap API
 MCP-Weather-Agent-with-LangChain/
 ├── mcp-server/           # MCP server wrapper (FastMCP + OpenWeatherMap)
 │   ├── server.py
+│   ├── tools.py          # Safety layer (rate limits, validation, retry)
 │   ├── weather_client.py
 │   ├── requirements.txt
 │   └── .env.example
@@ -141,6 +142,12 @@ Server listens at **`http://127.0.0.1:8000/mcp`** (streamable HTTP).
 | `geocode_city(city)` | Resolve city name to coordinates |
 | `get_current_weather(city)` | Current temperature, conditions, humidity, wind |
 | `get_forecast(city, days=3)` | Daily forecast summary (1–5 days) |
+
+**Safety limits** (`tools.py` — applied before every OpenWeatherMap call):
+
+- In-memory rate limit: **10 calls/minute per tool**
+- Location strings over **100 characters** are rejected
+- Outbound API calls: **5-second timeout** with **one retry**
 
 ### Terminal 2 — Agent backend
 
