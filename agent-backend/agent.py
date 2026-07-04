@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 
 from dotenv import load_dotenv
-from langchain_core.messages import AIMessage, HumanMessage
+from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from langchain_groq import ChatGroq
 from langchain_mcp_adapters.client import MultiServerMCPClient
 from langgraph.prebuilt import create_react_agent
@@ -12,6 +12,19 @@ load_dotenv(ENV_PATH)
 
 DEFAULT_MCP_SERVER_URL = "http://127.0.0.1:8000/mcp"
 DEFAULT_GROQ_MODEL = "llama-3.3-70b-versatile"
+
+SYSTEM_PROMPT = SystemMessage(
+    content="""You are a weather assistant. Answer questions about weather anywhere in the world.
+
+Rules:
+- Always use the available weather tools for current conditions, forecasts, and geocoding. Never guess or invent weather data.
+- When a tool returns a JSON object with an "error" field, explain the problem clearly to the user instead of making up an answer.
+- Report temperatures in degrees Celsius (°C). Include the city and country when available.
+- For forecast questions, use get_forecast with an appropriate number of days (1–5).
+- For current conditions, use get_current_weather.
+- If a city name is ambiguous (e.g. Springfield), ask the user which city or country they mean before calling tools.
+- Keep answers concise and conversational unless the user asks for detail."""
+)
 
 
 class AgentConfigurationError(Exception):
@@ -45,7 +58,7 @@ async def build_agent():
     tools = await client.get_tools()
 
     llm = ChatGroq(model=model_name, api_key=api_key)
-    return create_react_agent(model=llm, tools=tools)
+    return create_react_agent(model=llm, tools=tools, prompt=SYSTEM_PROMPT)
 
 
 def _history_to_messages(history: list[dict]) -> list:
