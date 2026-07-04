@@ -253,6 +253,12 @@ The ReAct agent reads the user message, picks a tool from these descriptions, ex
 
 ## Quick verification
 
+**Safety limits (offline, no API keys):**
+
+```bash
+python scripts/verify_safety.py
+```
+
 **MCP health** (406 on a plain GET is normal for MCP):
 
 ```bash
