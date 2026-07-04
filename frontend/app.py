@@ -13,8 +13,11 @@ BACKEND_URL = os.getenv("AGENT_BACKEND_URL", DEFAULT_BACKEND_URL).rstrip("/")
 REQUEST_TIMEOUT = 120.0
 
 EXAMPLE_PROMPTS = [
-    "What's the weather in Tokyo?",
+    "What's the current weather in Tokyo?",
     "Will it rain in London this weekend?",
+    "Compare the temperature in Paris and New York today.",
+    "Give me a 5-day forecast for Sydney.",
+    "What should I wear in Berlin tomorrow?",
 ]
 
 
