@@ -8,7 +8,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
-from agent import AgentConfigurationError, build_agent, run_agent
+from agent import AgentConfigurationError, AgentInvocationError, build_agent, run_agent
 
 ENV_PATH = Path(__file__).resolve().parent / ".env"
 load_dotenv(ENV_PATH)
@@ -83,7 +83,10 @@ async def chat(request: ChatRequest):
         if request.history
         else None
     )
-    response_text = await run_agent(agent, request.message, history=history)
+    try:
+        response_text = await run_agent(agent, request.message, history=history)
+    except AgentInvocationError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
     return ChatResponse(response=response_text)
 
 
