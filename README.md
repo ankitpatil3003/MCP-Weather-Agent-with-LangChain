@@ -69,6 +69,8 @@ This repository was built end-to-end in **Cursor**, using the agent for architec
 | [#3](https://github.com/ankitpatil3003/MCP-Weather-Agent-with-LangChain/pull/3) | Streamlit chat UI |
 | [#5](https://github.com/ankitpatil3003/MCP-Weather-Agent-with-LangChain/pull/5) | README and setup documentation |
 | [#7](https://github.com/ankitpatil3003/MCP-Weather-Agent-with-LangChain/pull/7) | MCP tool safety limits (`tools.py`) |
+| [#9](https://github.com/ankitpatil3003/MCP-Weather-Agent-with-LangChain/pull/9) | Assessment score improvements (system prompt, docs, verification) |
+| [#10](https://github.com/ankitpatil3003/MCP-Weather-Agent-with-LangChain/pull/10) | Release: score improvements to `main` |
 
 Full history: [Pull requests](https://github.com/ankitpatil3003/MCP-Weather-Agent-with-LangChain/pulls?q=is%3Apr+is%3Amerged)
 
@@ -91,6 +93,8 @@ MCP-Weather-Agent-with-LangChain/
 │   ├── app.py
 │   ├── requirements.txt
 │   └── .env.example
+├── scripts/
+│   └── verify_safety.py  # Offline safety constraint tests (no API keys)
 ├── requirements.txt      # Installs all services (optional convenience)
 └── README.md
 ```
@@ -209,10 +213,13 @@ cd frontend
 streamlit run app.py
 ```
 
-Open **`http://localhost:8501`** and ask questions such as:
+Open **`http://localhost:8501`** and ask questions such as (or use the sidebar example prompts):
 
-- *What's the weather in Tokyo?*
+- *What's the current weather in Tokyo?*
 - *Will it rain in London this weekend?*
+- *Compare the temperature in Paris and New York today.*
+- *Give me a 5-day forecast for Sydney.*
+- *What should I wear in Berlin tomorrow?*
 
 ## Prompt design
 
