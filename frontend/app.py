@@ -148,7 +148,6 @@ def main() -> None:
     pending_prompt = st.session_state.pop("pending_prompt", None)
     if pending_prompt:
         _process_user_message(pending_prompt)
-        return
 
     if user_prompt := st.chat_input("Ask about the weather..."):
         _process_user_message(user_prompt)
