@@ -29,6 +29,9 @@ async def get_forecast(city: str, days: int = 3) -> dict:
 
 
 if __name__ == "__main__":
-    mcp.settings.host = os.getenv("MCP_HOST", "127.0.0.1")
-    mcp.settings.port = int(os.getenv("MCP_PORT", "8000"))
+    # Render and other PaaS set PORT; default to local loopback for development.
+    port = int(os.getenv("PORT") or os.getenv("MCP_PORT", "8000"))
+    host = os.getenv("MCP_HOST", "0.0.0.0" if os.getenv("PORT") else "127.0.0.1")
+    mcp.settings.host = host
+    mcp.settings.port = port
     mcp.run(transport="streamable-http")

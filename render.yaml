@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: weather-mcp
+    runtime: docker
+    rootDir: mcp-server
+    plan: free
+    healthCheckPath: /mcp
+    envVars:
+      - key: OPENWEATHER_API_KEY
+        sync: false
+      - key: MCP_HOST
+        value: 0.0.0.0
+      - key: MCP_PORT
+        value: "8000"
+      - key: PORT
+        value: "8000"
