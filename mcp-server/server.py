@@ -1,9 +1,9 @@
 import os
 
+import uvicorn
 from dotenv import load_dotenv
 from mcp.server.fastmcp import FastMCP
 from mcp.server.transport_security import TransportSecuritySettings
-from starlette.requests import Request
 from starlette.responses import JSONResponse
 
 import tools
@@ -47,6 +47,24 @@ def _transport_security(host: str) -> TransportSecuritySettings | None:
     return None
 
 
+class _HealthASGI:
+    """Serve GET/HEAD /health with 200 before forwarding to the MCP Starlette app.
+
+    Relies on wrapping the ASGI app so Render health checks work even when the
+    installed mcp package does not wire @custom_route into streamable HTTP.
+    """
+
+    def __init__(self, app) -> None:
+        self.app = app
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] == "http" and scope.get("path", "").rstrip("/") == "/health":
+            if scope.get("method") in ("GET", "HEAD"):
+                await JSONResponse({"status": "ok"})(scope, receive, send)
+                return
+        await self.app(scope, receive, send)
+
+
 _bind_host, _bind_port = _resolve_bind()
 
 # Pass host at construction time so transport security matches the real bind.
@@ -56,12 +74,6 @@ mcp = FastMCP(
     port=_bind_port,
     transport_security=_transport_security(_bind_host),
 )
-
-
-@mcp.custom_route("/health", methods=["GET"])
-async def health(_request: Request) -> JSONResponse:
-    """Plain HTTP probe for Render / load balancers (MCP /mcp returns 406 on GET)."""
-    return JSONResponse({"status": "ok"})
 
 
 @mcp.tool()
@@ -85,4 +97,10 @@ async def get_forecast(city: str, days: int = 3) -> dict:
 if __name__ == "__main__":
     mcp.settings.host = _bind_host
     mcp.settings.port = _bind_port
-    mcp.run(transport="streamable-http")
+    asgi_app = _HealthASGI(mcp.streamable_http_app())
+    uvicorn.run(
+        asgi_app,
+        host=_bind_host,
+        port=_bind_port,
+        log_level="info",
+    )
