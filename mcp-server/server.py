@@ -2,12 +2,58 @@ import os
 
 from dotenv import load_dotenv
 from mcp.server.fastmcp import FastMCP
+from mcp.server.transport_security import TransportSecuritySettings
 
 import tools
 
 load_dotenv()
 
-mcp = FastMCP("weather")
+
+def _resolve_bind() -> tuple[str, int]:
+    """Render injects PORT; local default stays loopback."""
+    port = int(os.getenv("PORT") or os.getenv("MCP_PORT", "8000"))
+    host = os.getenv("MCP_HOST", "0.0.0.0" if os.getenv("PORT") else "127.0.0.1")
+    return host, port
+
+
+def _transport_security(host: str) -> TransportSecuritySettings | None:
+    """
+    MCP SDK auto-enables DNS rebinding protection when host is localhost,
+    allowing only 127.0.0.1/localhost. That rejects PaaS Host headers (421).
+
+    - MCP_ALLOWED_HOSTS: comma-separated public hostnames (recommended in prod)
+    - Cloud bind (0.0.0.0 / PORT set): disable localhost-only guard
+    - Localhost: leave SDK defaults (None)
+    """
+    raw = os.getenv("MCP_ALLOWED_HOSTS", "").strip()
+    if raw:
+        hosts: list[str] = []
+        for item in raw.split(","):
+            name = item.strip()
+            if not name:
+                continue
+            hosts.append(name if ":" in name else f"{name}:*")
+        hosts.extend(["127.0.0.1:*", "localhost:*"])
+        return TransportSecuritySettings(
+            enable_dns_rebinding_protection=True,
+            allowed_hosts=hosts,
+        )
+
+    if host in ("0.0.0.0", "::") or os.getenv("PORT"):
+        return TransportSecuritySettings(enable_dns_rebinding_protection=False)
+
+    return None
+
+
+_bind_host, _bind_port = _resolve_bind()
+
+# Pass host at construction time so transport security matches the real bind.
+mcp = FastMCP(
+    "weather",
+    host=_bind_host,
+    port=_bind_port,
+    transport_security=_transport_security(_bind_host),
+)
 
 
 @mcp.tool()
@@ -29,9 +75,6 @@ async def get_forecast(city: str, days: int = 3) -> dict:
 
 
 if __name__ == "__main__":
-    # Render and other PaaS set PORT; default to local loopback for development.
-    port = int(os.getenv("PORT") or os.getenv("MCP_PORT", "8000"))
-    host = os.getenv("MCP_HOST", "0.0.0.0" if os.getenv("PORT") else "127.0.0.1")
-    mcp.settings.host = host
-    mcp.settings.port = port
+    mcp.settings.host = _bind_host
+    mcp.settings.port = _bind_port
     mcp.run(transport="streamable-http")
