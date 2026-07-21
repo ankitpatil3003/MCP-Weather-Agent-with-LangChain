@@ -14,3 +14,7 @@ services:
         value: "8000"
       - key: PORT
         value: "8000"
+      # Optional allowlist (e.g. weather-mcp-xxxx.onrender.com). Leave unset to
+      # disable localhost-only Host guard on cloud (fixes 421 Misdirected Request).
+      - key: MCP_ALLOWED_HOSTS
+        sync: false

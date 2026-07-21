@@ -10,16 +10,22 @@ Trippi-AI calls this MCP over streamable HTTP. Deploy it before the Trippi-AI AP
 2. In Render: New → Blueprint, or Web Service from `mcp-server` with Docker runtime.
 3. Set secret `OPENWEATHER_API_KEY`.
 4. Set `MCP_HOST=0.0.0.0`. Render injects `PORT`; `server.py` honors `PORT`.
-5. After deploy, public URL looks like `https://weather-mcp.onrender.com/mcp`.
-6. Smoke:
+5. Optional: set `MCP_ALLOWED_HOSTS=weather-mcp-xxxx.onrender.com` to keep DNS
+   rebinding protection with an explicit allowlist. If unset on cloud (`PORT` /
+   `0.0.0.0`), the server disables the localhost-only Host guard so Render’s
+   public Host header is accepted (avoids `421 Invalid Host header`).
+6. After deploy, public URL looks like `https://weather-mcp.onrender.com/mcp`.
+7. Smoke (PowerShell: use `curl.exe`):
 
 ```bash
-curl -sS https://YOUR_SERVICE.onrender.com/mcp
+curl.exe -i https://YOUR_SERVICE.onrender.com/mcp
 ```
 
-A non-connection-failure response (including MCP protocol 406 on plain GET) means the process is up.
+A non-connection-failure response (including MCP protocol **406** on plain GET)
+means the process is up. **421** means Host-header protection is rejecting the
+Render hostname — redeploy with the fixed `server.py` or set `MCP_ALLOWED_HOSTS`.
 
-7. Put that base MCP URL into Trippi-AI as `MCP_SERVER_URL`.
+8. Put that base MCP URL into Trippi-AI as `MCP_SERVER_URL`.
 
 ## Free tier notes
 
