@@ -3,6 +3,8 @@ import os
 from dotenv import load_dotenv
 from mcp.server.fastmcp import FastMCP
 from mcp.server.transport_security import TransportSecuritySettings
+from starlette.requests import Request
+from starlette.responses import JSONResponse
 
 import tools
 
@@ -54,6 +56,12 @@ mcp = FastMCP(
     port=_bind_port,
     transport_security=_transport_security(_bind_host),
 )
+
+
+@mcp.custom_route("/health", methods=["GET"])
+async def health(_request: Request) -> JSONResponse:
+    """Plain HTTP probe for Render / load balancers (MCP /mcp returns 406 on GET)."""
+    return JSONResponse({"status": "ok"})
 
 
 @mcp.tool()

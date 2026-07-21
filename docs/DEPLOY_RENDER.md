@@ -25,6 +25,10 @@ A non-connection-failure response (including MCP protocol **406** on plain GET)
 means the process is up. **421** means Host-header protection is rejecting the
 Render hostname — redeploy with the fixed `server.py` or set `MCP_ALLOWED_HOSTS`.
 
+Health checks must use **`/health`** (returns 200). Do **not** use `/mcp` as
+`healthCheckPath` — Render expects 2xx and `/mcp` returns 406, which leaves
+deploys stuck in “Deploying”.
+
 8. Put that base MCP URL into Trippi-AI as `MCP_SERVER_URL`.
 
 ## Free tier notes

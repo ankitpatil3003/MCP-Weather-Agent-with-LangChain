@@ -4,7 +4,7 @@ services:
     runtime: docker
     rootDir: mcp-server
     plan: free
-    healthCheckPath: /mcp
+    healthCheckPath: /health
     envVars:
       - key: OPENWEATHER_API_KEY
         sync: false
